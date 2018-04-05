@@ -1,0 +1,32 @@
+version: "2"
+services:
+  influxdb:
+    image: influxdb
+    ports:
+      - '8086:8086'
+      - '8083:8083'
+
+  grafana:
+    image: grafana/grafana
+    links:
+      - influxdb
+    ports:
+      - '3000:3000'
+
+  main:
+    build:
+      context: .
+    links:
+      - influxdb
+    environment:
+      INFLUX_DB: 'http://influxdb:8086'
+
+  main-debian:
+    build:
+      context: .
+      args:
+        golang_tag: stretch
+    links:
+      - influxdb
+    environment:
+      INFLUX_DB: 'http://influxdb:8086'
