@@ -1,6 +1,6 @@
 # Linux Limits to InfluxDB
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/d-led/linux_limits_to_influxdb)](https://goreportcard.com/report/github.com/d-led/linux_limits_to_influxdb)
+[![Go Report Card](https://goreportcard.com/badge/github.com/d-led/linux_limits_to_influxdb)](https://goreportcard.com/report/github.com/d-led/linux_limits_to_influxdb) [![Build Status](https://travis-ci.org/d-led/linux_limits_to_influxdb.svg?branch=master)](https://travis-ci.org/d-led/linux_limits_to_influxdb)
 
 > Pushing Linux `ulimit` and `ipcs` limits into [InfluxDB](https://www.influxdata.com/)
 
