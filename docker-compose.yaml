@@ -19,7 +19,7 @@ services:
     links:
       - influxdb
     environment:
-      INFLUX_DB: 'http://influxdb:8086'
+      INFLUX_URL: 'http://influxdb:8086'
 
   main-debian:
     build:
@@ -29,4 +29,4 @@ services:
     links:
       - influxdb
     environment:
-      INFLUX_DB: 'http://influxdb:8086'
+      INFLUX_URL: 'http://influxdb:8086'

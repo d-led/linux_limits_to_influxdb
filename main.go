@@ -41,28 +41,28 @@ func runForever(config *influxConfig, lconfig *lltiConfig) {
 		panic(err)
 	}
 
-	log.Println(client)
+	ensureDbExists(client, config.InfluxDb)
 
 	for {
 		values := ulimits()
 		mergeIntoFirst(values, IpcsLimits())
-		tags := tags()
+		// tags := tags()
 
-		log.Println(values)
-		log.Println(tags)
+		// log.Println(values)
+		// log.Println(tags)
 
 		time.Sleep(time.Duration(lconfig.DelaySeconds) * time.Second)
 	}
 }
 
-func newInfluxClient(config *influxConfig) (*influx.Client, error) {
+func newInfluxClient(config *influxConfig) (influx.Client, error) {
 	c, err := influx.NewHTTPClient(influx.HTTPConfig{
 		Addr:     config.InfluxUrl,
 		Username: config.InfluxUser,
 		Password: config.InfluxPass,
 	})
 
-	return &c, err
+	return c, err
 }
 
 func sanityCheck() {
