@@ -7,6 +7,9 @@ WORKDIR /go/src/llti
 
 COPY . .
 
+RUN ./install_dependencies.sh \
+    && go get github.com/stretchr/testify/assert
+
 RUN go get -d -v ./...
 RUN go build
 RUN go test ./...

@@ -41,9 +41,26 @@ func runForever(config *influxConfig, lconfig *lltiConfig) {
 	}
 
 	for {
-		ul := ulimits()
-		log.Println(ul)
+		values := ulimits()
+		mergeIntoFirst(values, IpcsLimits())
+		tags := tags()
+
+		log.Println(values)
+		log.Println(tags)
+
 		time.Sleep(time.Duration(lconfig.DelaySeconds) * time.Second)
+	}
+}
+
+func mergeIntoFirst(first map[string]interface{}, second map[string]interface{}) {
+	for k, v := range second {
+		first[k] = v
+	}
+}
+
+func mergeIntoFirstStringMap(first map[string]string, second map[string]string) {
+	for k, v := range second {
+		first[k] = v
 	}
 }
 
@@ -95,9 +112,9 @@ func ulimits() map[string]interface{} {
 	// -r: real-time priority             0
 
 	flags := map[string]string{
-		"-w": "locks_limit",
-		"-n": "file_descriptors_limit",
-		"-p": "processes_limit",
+		"-w": "max_locks",
+		"-n": "max_file_descriptors",
+		"-p": "max_processes",
 	}
 
 	for flag, field := range flags {

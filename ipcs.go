@@ -5,9 +5,11 @@ import (
 	"strings"
 )
 
-func ipcsLimits() map[string]interface{} {
-	// output := "" //executeToString("/bin/sh", "-c", "ulimit "+flag)
-	return nil
+func IpcsLimits() map[string]interface{} {
+	if output, err := executeToString("/bin/sh", "-c", "ipcs -ls"); err == nil {
+		return parseIpcsLimits(output)
+	}
+	return map[string]interface{}{}
 }
 
 func parseIpcsLimits(output string) map[string]interface{} {
