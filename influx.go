@@ -92,7 +92,7 @@ func ensureDbExists(client influx.Client, db string) {
 	}
 }
 
-func insertSinglePointNow(client influx.Client, config *influxConfig, limits string, fields map[string]interface{}, tags map[string]string) {
+func insertSinglePointNow(client influx.Client, config *influxConfig, measurement string, fields map[string]interface{}, tags map[string]string) {
 	bp, err := influx.NewBatchPoints(influx.BatchPointsConfig{
 		Database:  config.InfluxDb,
 		Precision: "us",
@@ -102,7 +102,7 @@ func insertSinglePointNow(client influx.Client, config *influxConfig, limits str
 		panic(err)
 	}
 
-	pt, err := influx.NewPoint(limits, tags, fields, time.Now())
+	pt, err := influx.NewPoint(measurement, tags, fields, time.Now())
 
 	if err != nil {
 		panic(err.Error())
