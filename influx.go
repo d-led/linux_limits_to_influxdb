@@ -4,7 +4,18 @@ import (
 	influx "github.com/influxdata/influxdb/client/v2"
 	"log"
 	"regexp"
+	"time"
 )
+
+func newInfluxClient(config *influxConfig) (influx.Client, error) {
+	c, err := influx.NewHTTPClient(influx.HTTPConfig{
+		Addr:     config.InfluxUrl,
+		Username: config.InfluxUser,
+		Password: config.InfluxPass,
+	})
+
+	return c, err
+}
 
 func query(client influx.Client, db string, qs string) (res []influx.Result, err error) {
 	q := influx.Query{
@@ -79,4 +90,25 @@ func ensureDbExists(client influx.Client, db string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func insertSinglePointNow(client influx.Client, config *influxConfig, limits string, fields map[string]interface{}, tags map[string]string) {
+	bp, err := influx.NewBatchPoints(influx.BatchPointsConfig{
+		Database:  config.InfluxDb,
+		Precision: "us",
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	pt, err := influx.NewPoint(limits, tags, fields, time.Now())
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	bp.AddPoint(pt)
+
+	client.Write(bp)
 }

@@ -5,8 +5,8 @@ FROM golang:$golang_tag
 
 WORKDIR /go/src/llti
 
-COPY install_dependencies.sh ./
-RUN ./install_dependencies.sh \
+COPY install_container_dependencies.sh ./
+RUN ./install_container_dependencies.sh \
     && go get github.com/stretchr/testify/assert \
     && go get github.com/influxdata/influxdb/client/v2
 

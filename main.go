@@ -1,25 +1,10 @@
 package main
 
 import (
-	influx "github.com/influxdata/influxdb/client/v2"
 	"log"
 	"os"
-	"os/exec"
-	"strconv"
-	"strings"
 	"time"
 )
-
-type influxConfig struct {
-	InfluxUrl  string
-	InfluxDb   string
-	InfluxUser string
-	InfluxPass string
-}
-
-type lltiConfig struct {
-	DelaySeconds int
-}
 
 func main() {
 	defer func() {
@@ -58,24 +43,7 @@ func run(forever bool, config *influxConfig, lconfig *lltiConfig) {
 		mergeIntoFirst(fields, IpcsLimits())
 		tags := tags()
 
-		bp, err := influx.NewBatchPoints(influx.BatchPointsConfig{
-			Database:  config.InfluxDb,
-			Precision: "us",
-		})
-
-		if err != nil {
-			panic(err)
-		}
-
-		pt, err := influx.NewPoint("limits", tags, fields, time.Now())
-
-		if err != nil {
-			panic(err.Error())
-		}
-
-		bp.AddPoint(pt)
-
-		client.Write(bp)
+		insertSinglePointNow(client, config, "limits", fields, tags)
 
 		time.Sleep(time.Duration(lconfig.DelaySeconds) * time.Second)
 
@@ -85,34 +53,15 @@ func run(forever bool, config *influxConfig, lconfig *lltiConfig) {
 	}
 }
 
-func newInfluxClient(config *influxConfig) (influx.Client, error) {
-	c, err := influx.NewHTTPClient(influx.HTTPConfig{
-		Addr:     config.InfluxUrl,
-		Username: config.InfluxUser,
-		Password: config.InfluxPass,
-	})
-
-	return c, err
+type influxConfig struct {
+	InfluxUrl  string
+	InfluxDb   string
+	InfluxUser string
+	InfluxPass string
 }
 
-func sanityCheck() {
-	if v, e := ulimit("-a"); e == nil {
-		log.Printf(v)
-	} else {
-		panic(e)
-	}
-}
-
-func mergeIntoFirst(first map[string]interface{}, second map[string]interface{}) {
-	for k, v := range second {
-		first[k] = v
-	}
-}
-
-func mergeIntoFirstStringMap(first map[string]string, second map[string]string) {
-	for k, v := range second {
-		first[k] = v
-	}
+type lltiConfig struct {
+	DelaySeconds int
 }
 
 func defaultConfig() (*influxConfig, *lltiConfig) {
@@ -136,68 +85,4 @@ func defaultConfig() (*influxConfig, *lltiConfig) {
 	}
 
 	return config, lconfig
-}
-
-func executeToString(cmd string, args ...string) (string, error) {
-	proc := exec.Command(cmd, args...)
-
-	res, err := proc.Output()
-
-	return string(res), err
-}
-
-func ulimits() map[string]interface{} {
-	res := map[string]interface{}{}
-
-	// -t: cpu time (seconds)             unlimited
-	// -d: data seg size (kb)             unlimited
-	// -s: stack size (kb)                8192
-	// -c: core file size (blocks)        0
-	// -m: resident set size (kb)         unlimited
-	// -l: locked memory (kb)             64
-	// -p: processes                      1048576
-	// -n: file descriptors               1048576
-	// -v: address space (kb)             unlimited
-	// -w: locks                          unlimited
-	// -e: scheduling priority            0
-	// -r: real-time priority             0
-
-	flags := map[string]string{
-		"-w": "max_locks",
-		"-n": "max_file_descriptors",
-		"-p": "max_processes",
-	}
-
-	for flag, field := range flags {
-		if val, err := ulimit(flag); err == nil {
-			res[field] = normalizeToInt(val)
-		}
-	}
-
-	return res
-}
-
-func ulimit(flag string) (string, error) {
-	return executeToString("/bin/sh", "-c", "ulimit "+flag)
-}
-
-func normalizeToInt(val string) int64 {
-	val = strings.TrimSpace(val)
-
-	if val == "unlimited" {
-		return -1
-	}
-
-	if r, err := strconv.ParseInt(val, 10, 64); err == nil {
-		return r
-	}
-
-	return -42
-}
-
-func toIntOrDefault(val string, defaultValue int64) int64 {
-	if r, err := strconv.ParseInt(val, 10, 64); err == nil {
-		return r
-	}
-	return defaultValue
 }

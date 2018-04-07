@@ -39,8 +39,6 @@ func linuxRelease() map[string]string {
 	return res
 }
 
-//output := executeResultOrEmpty("cat /etc/*-release")
-
 func parseRelease(contents string) map[string]string {
 	res := map[string]string{}
 
