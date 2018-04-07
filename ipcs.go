@@ -1,7 +1,8 @@
 package main
 
 import (
-	"log"
+	"regexp"
+	"strings"
 )
 
 func ipcsLimits() map[string]interface{} {
@@ -11,6 +12,18 @@ func ipcsLimits() map[string]interface{} {
 
 func parseIpcsLimits(output string) map[string]interface{} {
 	res := map[string]interface{}{}
-	log.Println(output)
+	valueRegex := regexp.MustCompile(`(?m)(\w.*?\w)\s*=\s*(\S+)`)
+	matches := valueRegex.FindAllStringSubmatch(output, -1)
+	for _, match := range matches {
+		key := validIdentifierFrom(match[1])
+		value := normalizeToInt(match[2])
+		res[key] = value
+	}
+	return res
+}
+
+func validIdentifierFrom(key string) string {
+	var spaces = regexp.MustCompile(`\s+`)
+	res := spaces.ReplaceAllString(strings.TrimSpace(key), `_`)
 	return res
 }
