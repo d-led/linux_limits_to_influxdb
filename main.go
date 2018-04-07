@@ -40,7 +40,7 @@ func run(forever bool, config *influxConfig, lconfig *lltiConfig) {
 
 	for {
 		fields := ulimits()
-		mergeIntoFirst(fields, IpcsLimits())
+		mergeIntoFirst(fields, ipcsLimits())
 		tags := tags()
 
 		insertSinglePointNow(client, config, "limits", fields, tags)
