@@ -64,7 +64,7 @@ func defaultConfig() (*influxConfig, *lltiConfig) {
 	}
 
 	lconfig := &lltiConfig{
-		DelaySeconds: 3,
+		DelaySeconds: int(toIntOrDefault(os.Getenv("LLTI_DELAY"), 3)), // no range check
 	}
 
 	return config, lconfig
@@ -95,9 +95,9 @@ func ulimits() map[string]interface{} {
 	// -r: real-time priority             0
 
 	flags := map[string]string{
-		"-w": "locks",
-		"-n": "file_descriptors",
-		"-p": "processes",
+		"-w": "locks_limit",
+		"-n": "file_descriptors_limit",
+		"-p": "processes_limit",
 	}
 
 	for flag, field := range flags {
@@ -125,4 +125,11 @@ func normalizeToInt(val string) int64 {
 	}
 
 	return -42
+}
+
+func toIntOrDefault(val string, defaultValue int64) int64 {
+	if r, err := strconv.ParseInt(val, 10, 64); err == nil {
+		return r
+	}
+	return defaultValue
 }

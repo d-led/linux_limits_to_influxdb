@@ -9,5 +9,6 @@ COPY . .
 
 RUN go get -d -v ./...
 RUN go build
+RUN go test ./...
 
 CMD ["./llti"]
