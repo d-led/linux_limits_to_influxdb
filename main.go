@@ -31,8 +31,13 @@ func main() {
 	forever := len(os.Args) == 1
 	log.Printf("Running forever: %v", forever)
 
-	// call with more than 0 parameter to run only once
 	db, llti := defaultConfig()
+
+	if forever {
+		log.Printf("Delay: %vs", llti.DelaySeconds)
+	}
+
+	// call with more than 0 parameter to run only once
 	run(forever, db, llti)
 }
 

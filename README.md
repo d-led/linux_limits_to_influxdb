@@ -2,7 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/d-led/linux_limits_to_influxdb)](https://goreportcard.com/report/github.com/d-led/linux_limits_to_influxdb)
 
-> Pushing Linux `ulimit` and `ipcs` limits into InfluxDB
+> Pushing Linux `ulimit` and `ipcs` limits into [InfluxDB](https://www.influxdata.com/)
 
 ## Configuration
 
@@ -55,3 +55,12 @@ time                distro_key distro_version hostname     max_file_descriptors 
 1523109717123049616 alpine     3.7.0          bc25099089c7 1048576              -1        32000                500                    1048576       32000                    1024000000                 32767               root
 1523109717156276029 debian     9              444e47e798f4 1048576              -1        32000                500                    1048576       32000                    1024000000                 32767               root
 ```
+
+### Grafana
+
+- Open `http://<DOCKER_URL>:3000` and log in with default [Grafana](https://grafana.com/) credentials `admin:admin`
+- Add an InfluxDB data source named `linux_limits` with the url `http://influxdb:8086` and the DB named `llti` ([img](demo/datasources.png))
+- Import [demo_dashboard.json](demo/demo_dashboard.json) at `http://<DOCKER_URL>:3000/dashboard/import`, selecting the data source above
+- Check the result:
+
+![table results in grafana](demo/table.png)
