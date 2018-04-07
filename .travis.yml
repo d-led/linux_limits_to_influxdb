@@ -4,4 +4,4 @@ services:
   - docker
 
 script:
-  - ./docker_demo.sh
+  - chmod +x docker_demo.sh && ./docker_demo.sh
