@@ -64,3 +64,9 @@ time                distro_key distro_version hostname     max_file_descriptors 
 - Check the result:
 
 ![table results in grafana](demo/table.png)
+
+## Dependencies
+
+- [influxdata/influxdb/client](https://github.com/influxdata/influxdb/tree/master/client)
+- [stretchr/testify/assert](https://github.com/stretchr/testify/tree/master/assert) for test readability
+- Docker (Compose), InfluxDB, Grafana for demo purposes
