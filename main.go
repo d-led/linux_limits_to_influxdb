@@ -28,10 +28,15 @@ func main() {
 		}
 	}()
 
-	runForever(defaultConfig())
+	forever := len(os.Args) == 1
+	log.Printf("Running forever: %v", forever)
+
+	// call with more than 0 parameter to run only once
+	db, llti := defaultConfig()
+	run(forever, db, llti)
 }
 
-func runForever(config *influxConfig, lconfig *lltiConfig) {
+func run(forever bool, config *influxConfig, lconfig *lltiConfig) {
 	log.Printf("Connecting to %v, db: %v", config.InfluxUrl, config.InfluxDb)
 
 	sanityCheck()
@@ -44,14 +49,34 @@ func runForever(config *influxConfig, lconfig *lltiConfig) {
 	ensureDbExists(client, config.InfluxDb)
 
 	for {
-		values := ulimits()
-		mergeIntoFirst(values, IpcsLimits())
-		// tags := tags()
+		fields := ulimits()
+		mergeIntoFirst(fields, IpcsLimits())
+		tags := tags()
 
-		// log.Println(values)
-		// log.Println(tags)
+		bp, err := influx.NewBatchPoints(influx.BatchPointsConfig{
+			Database:  config.InfluxDb,
+			Precision: "us",
+		})
+
+		if err != nil {
+			panic(err)
+		}
+
+		pt, err := influx.NewPoint("limits", tags, fields, time.Now())
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		bp.AddPoint(pt)
+
+		client.Write(bp)
 
 		time.Sleep(time.Duration(lconfig.DelaySeconds) * time.Second)
+
+		if !forever {
+			break
+		}
 	}
 }
 
@@ -102,7 +127,7 @@ func defaultConfig() (*influxConfig, *lltiConfig) {
 	}
 
 	lconfig := &lltiConfig{
-		DelaySeconds: int(toIntOrDefault(os.Getenv("LLTI_DELAY"), 3)), // no range check
+		DelaySeconds: int(toIntOrDefault(os.Getenv("LLTI_DELAY_SECONDS"), 3)), // no range check
 	}
 
 	return config, lconfig
