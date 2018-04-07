@@ -1,13 +1,13 @@
 package main
 
 import (
+	influx "github.com/influxdata/influxdb/client/v2"
 	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
-	// "github.com/influxdata/influxdb/client/v2"
 )
 
 type influxConfig struct {
@@ -34,11 +34,14 @@ func main() {
 func runForever(config *influxConfig, lconfig *lltiConfig) {
 	log.Printf("Connecting to %v, db: %v", config.InfluxUrl, config.InfluxDb)
 
-	if v, e := ulimit("-a"); e == nil {
-		log.Printf(v)
-	} else {
-		panic(e)
+	sanityCheck()
+
+	client, err := newInfluxClient(config)
+	if err != nil {
+		panic(err)
 	}
+
+	log.Println(client)
 
 	for {
 		values := ulimits()
@@ -49,6 +52,24 @@ func runForever(config *influxConfig, lconfig *lltiConfig) {
 		log.Println(tags)
 
 		time.Sleep(time.Duration(lconfig.DelaySeconds) * time.Second)
+	}
+}
+
+func newInfluxClient(config *influxConfig) (*influx.Client, error) {
+	c, err := influx.NewHTTPClient(influx.HTTPConfig{
+		Addr:     config.InfluxUrl,
+		Username: config.InfluxUser,
+		Password: config.InfluxPass,
+	})
+
+	return &c, err
+}
+
+func sanityCheck() {
+	if v, e := ulimit("-a"); e == nil {
+		log.Printf(v)
+	} else {
+		panic(e)
 	}
 }
 
