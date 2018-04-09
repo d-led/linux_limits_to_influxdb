@@ -17,7 +17,7 @@ cmd="/usr/local/bin/llti"
 user="vagrant"
 
 export LLTI_DELAY_SECONDS=600
-export INFLUX_URL=http://http://localhost:8086
+export INFLUX_URL=http://localhost:8086
 export INFLUX_DB=llti
 export INFLUX_USER=
 export INFLUX_PWD=
@@ -43,9 +43,9 @@ case "$1" in
         echo "Starting $name"
         cd "$dir"
         if [ -z "$user" ]; then
-            sudo $cmd >> "$stdout_log" 2>> "$stderr_log" &
+            sudo -E $cmd >> "$stdout_log" 2>> "$stderr_log" &
         else
-            sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
+            sudo -E -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
         fi
         echo $! > "$pid_file"
         if ! is_running; then
