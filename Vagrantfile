@@ -1,6 +1,8 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "debian/stretch64"
+
   config.vm.synced_folder ".", "/home/vagrant/go/src/github.com/d-led/linux_limits_to_influxdb"
+
   config.vm.provision "shell", privileged: true, inline: <<-SHELL
     # install Docker
     apt-get remove docker docker-engine docker.io
@@ -30,13 +32,18 @@ Vagrant.configure("2") do |config|
     usermod -aG docker vagrant
 
     # install Golang
+    mkdir tmp
+    cd tmp
     wget -qq https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz
     tar -xvf go1.10.1.linux-amd64.tar.gz
     mv go /usr/local
+    cd ..
+
+    # profile defaults
     echo export GOROOT=/usr/local/go >> /home/vagrant/.profile
     echo export GOPATH=/home/vagrant/go >> /home/vagrant/.profile
     echo cd /home/vagrant/go/src/github.com/d-led/linux_limits_to_influxdb >> /home/vagrant/.profile
-    echo export PATH=\\\$GOPATH/bin:\\\$GOROOT/bin:\\\$PATH
+    echo export PATH=\\\$GOPATH/bin:\\\$GOROOT/bin:\\\$PATH >> /home/vagrant/.profile
 
     chown -R vagrant /home/vagrant
   SHELL

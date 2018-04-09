@@ -18,3 +18,5 @@
 
 # End of https://www.gitignore.io/api/go
 .vagrant/
+
+linux_limits_to_influxdb
