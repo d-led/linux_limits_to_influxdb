@@ -18,6 +18,7 @@ Currently, configured via environment variables:
 
 - Compile as a normal Go project and run the executable
 - Start with more than one command line parameter to push values only once
+- The user currently needs read permission on the target database. If it's not created beforehand, the user needs the permission to do so.
 
 ## Demo/Testing
 
